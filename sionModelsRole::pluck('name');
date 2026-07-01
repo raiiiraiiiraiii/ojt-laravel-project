@@ -1,0 +1,9 @@
+[90m= [39m[34;4mIlluminate\Support\Collection[39;24m {#8235
+    [34mall[39m: [
+      [32m"[39m[32mcreate tasks[39m[32m"[39m,
+      [32m"[39m[32mdelete tasks[39m[32m"[39m,
+      [32m"[39m[32mmove tasks[39m[32m"[39m,
+      [32m"[39m[32mupdate tasks[39m[32m"[39m,
+      [32m"[39m[32mview tasks[39m[32m"[39m,
+    ],
+  }

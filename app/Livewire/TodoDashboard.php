@@ -52,6 +52,8 @@ class TodoDashboard extends Component
 
     public function addTask(): void
     {
+        $this->authorizeTaskAction('create tasks');
+
         $validated = $this->validate();
 
         $todo = new Todo();
@@ -73,6 +75,8 @@ class TodoDashboard extends Component
 
     public function updateTodoStatus(int $todoId, string $status): void
     {
+        $this->authorizeTaskAction('move tasks');
+
         if (! in_array($status, self::STATUSES, true)) {
             throw ValidationException::withMessages([
                 'status' => 'Invalid task status.',
@@ -91,6 +95,8 @@ class TodoDashboard extends Component
 
     public function deleteTask(int $todoId): void
     {
+        $this->authorizeTaskAction('delete tasks');
+        
         Todo::query()
             ->whereKey($todoId)
             ->delete();
@@ -108,6 +114,17 @@ class TodoDashboard extends Component
         $this->priority = 'medium';
 
         $this->resetValidation();
+    }
+
+    private function authorizeTaskAction(string $permission): void
+    {
+    if (! auth()->check()) {
+        return;
+    }
+
+    if (! auth()->user()->can($permission)) {
+        abort(403, 'You do not have permission to perform this task action.');
+    }
     }
 
     public function render(): View
