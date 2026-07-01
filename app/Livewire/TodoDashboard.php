@@ -40,6 +40,16 @@ class TodoDashboard extends Component
 
     public ?string $deadline = null;
 
+    public ?int $editingTodoId = null;
+
+    public string $editTitle = '';
+
+    public string $editDescription = '';
+
+    public string $editPriority = 'medium';
+
+    public ?string $editDeadline = null;
+
     protected function rules(): array
     {
         return [
@@ -73,6 +83,63 @@ class TodoDashboard extends Component
         $this->resetTaskForm();
     }
 
+    public function editTask(int $todoId): void
+    {
+        $this->authorizeTaskAction('update tasks');
+
+        $todo = Todo::query()->findOrFail($todoId);
+
+        $this->editingTodoId = $todo->id;
+        $this->editTitle = $todo->title;
+        $this->editDescription = $todo->description ?? '';
+        $this->editPriority = $todo->priority ?? 'medium';
+        $this->editDeadline = $todo->deadline?->format('Y-m-d');
+
+        $this->resetValidation();
+    }
+
+    public function updateTask(): void
+    {
+        $this->authorizeTaskAction('update tasks');
+
+        if ($this->editingTodoId === null) {
+            return;
+        }
+
+        $validated = $this->validate([
+            'editTitle' => ['required', 'string', 'max:255'],
+            'editDescription' => ['nullable', 'string', 'max:2000'],
+            'editPriority' => ['required', Rule::in(self::PRIORITIES)],
+            'editDeadline' => ['nullable', 'date'],
+        ]);
+
+        $todo = Todo::query()->findOrFail($this->editingTodoId);
+
+        $todo->title = trim($validated['editTitle']);
+        $todo->description = filled($validated['editDescription'])
+            ? trim($validated['editDescription'])
+            : null;
+        $todo->priority = $validated['editPriority'];
+        $todo->deadline = filled($validated['editDeadline'])
+            ? Carbon::parse($validated['editDeadline'])->toDateString()
+            : null;
+
+        $todo->save();
+
+        $this->cancelEdit();
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->editingTodoId = null;
+        $this->editTitle = '';
+        $this->editDescription = '';
+        $this->editPriority = 'medium';
+        $this->editDeadline = null;
+
+        $this->resetValidation();
+    }
+
     public function updateTodoStatus(int $todoId, string $status): void
     {
         $this->authorizeTaskAction('move tasks');
@@ -96,7 +163,7 @@ class TodoDashboard extends Component
     public function deleteTask(int $todoId): void
     {
         $this->authorizeTaskAction('delete tasks');
-        
+
         Todo::query()
             ->whereKey($todoId)
             ->delete();
@@ -118,13 +185,13 @@ class TodoDashboard extends Component
 
     private function authorizeTaskAction(string $permission): void
     {
-    if (! auth()->check()) {
-        return;
-    }
+        if (! auth()->check()) {
+            return;
+        }
 
-    if (! auth()->user()->can($permission)) {
-        abort(403, 'You do not have permission to perform this task action.');
-    }
+        if (! auth()->user()->can($permission)) {
+            abort(403, 'You do not have permission to perform this task action.');
+        }
     }
 
     public function render(): View
