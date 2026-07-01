@@ -1,0 +1,69 @@
+#!/bin/bash
+set -e
+
+prepare_public() {
+    mkdir -p /var/www/html/public
+
+    if [ -d /tmp/public ]; then
+        cp -a /tmp/public/. /var/www/html/public/
+    fi
+}
+
+prepare_storage() {
+    mkdir -p /var/www/html/storage/framework/cache/data
+    mkdir -p /var/www/html/storage/framework/sessions
+    mkdir -p /var/www/html/storage/framework/views
+    mkdir -p /var/www/html/bootstrap/cache
+
+    chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
+    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+    php artisan storage:link || true
+}
+
+wait_for_database() {
+    echo "Waiting for database..."
+
+    until php -r '
+        try {
+            new PDO(
+                "mysql:host=" . getenv("DB_HOST") . ";port=" . getenv("DB_PORT") . ";dbname=" . getenv("DB_DATABASE"),
+                getenv("DB_USERNAME"),
+                getenv("DB_PASSWORD")
+            );
+            exit(0);
+        } catch (Throwable $e) {
+            exit(1);
+        }
+    '; do
+        echo "Database is not ready yet..."
+        sleep 2
+    done
+
+    echo "Database is ready."
+}
+
+run_migrations() {
+    php artisan migrate --force
+}
+
+clear_cache() {
+    php artisan optimize:clear
+}
+
+main() {
+    prepare_public
+    prepare_storage
+
+    if [ "$IS_WORKER" = "true" ]; then
+        exec "$@"
+    fi
+
+    wait_for_database
+    run_migrations
+    clear_cache
+
+    exec "$@"
+}
+
+main "$@"

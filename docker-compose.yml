@@ -1,0 +1,99 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kayapa-app:local
+    container_name: kayapa_app
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - kayapa_storage:/var/www/html/storage
+      - kayapa_public:/var/www/html/public
+
+  nginx:
+    image: nginx:1-alpine
+    container_name: kayapa_nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - kayapa_storage:/var/www/html/storage:ro
+      - kayapa_public:/var/www/html/public:ro
+
+  db:
+    image: mysql:8.0
+    container_name: kayapa_mysql
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: kayapa
+      MYSQL_USER: kayapa
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - kayapa_db:/var/lib/mysql
+
+  redis:
+    image: redis:7-alpine
+    container_name: kayapa_redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - kayapa_redis:/data
+
+  horizon:
+    image: kayapa-app:local
+    container_name: kayapa_horizon
+    restart: unless-stopped
+    profiles:
+      - extras
+    command: php artisan horizon
+    env_file:
+      - .env.docker
+    environment:
+      IS_WORKER: "true"
+    depends_on:
+      - app
+      - redis
+      - db
+    volumes:
+      - kayapa_storage:/var/www/html/storage
+      - kayapa_public:/var/www/html/public
+
+  reverb:
+    image: kayapa-app:local
+    container_name: kayapa_reverb
+    restart: unless-stopped
+    profiles:
+      - extras
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+    env_file:
+      - .env.docker
+    environment:
+      IS_WORKER: "true"
+    depends_on:
+      - app
+      - redis
+      - db
+    ports:
+      - "8081:8080"
+    volumes:
+      - kayapa_storage:/var/www/html/storage
+      - kayapa_public:/var/www/html/public
+
+volumes:
+  kayapa_storage:
+  kayapa_public:
+  kayapa_db:
+  kayapa_redis:
