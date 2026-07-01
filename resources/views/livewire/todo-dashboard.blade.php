@@ -356,6 +356,68 @@
             background: #fee2e2;
         }
 
+        .kp-card-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .kp-edit-btn {
+            border: 1px solid #FFE761;
+            border-radius: 13px;
+            background: #FFF9E2;
+            color: #9a6b00;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 900;
+            padding: 8px 10px;
+        }
+
+        .kp-edit-btn:hover {
+            background: #FFF394;
+        }
+
+        .kp-edit-form {
+            display: grid;
+            gap: 10px;
+        }
+
+        .kp-edit-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .kp-edit-save-btn,
+        .kp-edit-cancel-btn {
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 900;
+            padding: 9px 13px;
+        }
+
+        .kp-edit-save-btn {
+            border: 0;
+            background: #111827;
+            color: white;
+        }
+
+        .kp-edit-save-btn:hover {
+            background: #374151;
+        }
+
+        .kp-edit-cancel-btn {
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #475569;
+        }
+
+        .kp-edit-cancel-btn:hover {
+            background: #f8fafc;
+        }
+
+
         .kp-card-meta {
             display: flex;
             flex-wrap: wrap;
@@ -460,7 +522,7 @@
             <div
                 class="kp-board"
                 wire:loading.class="kp-loading"
-                wire:target="addTask,updateTodoStatus,deleteTask"
+                wire:target="addTask,updateTodoStatus,deleteTask,editTask,updateTask,cancelEdit"
             >
                 @foreach ($columns as $status => $column)
                     @php
@@ -632,61 +694,142 @@
 
                                 <article
                                     wire:key="todo-card-{{ $todo->id }}"
-                                    draggable="true"
+                                    draggable="{{ $editingTodoId === $todo->id ? 'false' : 'true' }}"
                                     @dragstart="dragStart({{ $todo->id }}, $event)"
                                     @dragend="clearDrag()"
                                     :class="draggingId === {{ $todo->id }} ? 'is-dragging' : ''"
                                     class="kp-card"
                                 >
-                                    <div class="kp-card-top">
-                                        <div>
-                                            <h3 class="kp-card-title">{{ $todo->title }}</h3>
+                                    @if ($editingTodoId === $todo->id)
+                                        <form wire:submit.prevent="updateTask" class="kp-edit-form" @click.stop>
+                                            <div class="kp-field">
+                                                <label for="edit-title-{{ $todo->id }}">Task title</label>
+                                                <input
+                                                    id="edit-title-{{ $todo->id }}"
+                                                    type="text"
+                                                    wire:model="editTitle"
+                                                    placeholder="Enter task title"
+                                                    class="kp-input"
+                                                >
+                                                @error('editTitle')
+                                                    <p class="kp-error">{{ $message }}</p>
+                                                @enderror
+                                            </div>
 
-                                            @if ($todo->description)
-                                                <p class="kp-card-desc">{{ $todo->description }}</p>
-                                            @else
-                                                <p class="kp-card-desc">No description added.</p>
-                                            @endif
+                                            <div class="kp-field">
+                                                <label for="edit-description-{{ $todo->id }}">Description</label>
+                                                <textarea
+                                                    id="edit-description-{{ $todo->id }}"
+                                                    wire:model="editDescription"
+                                                    placeholder="Add task details"
+                                                    class="kp-textarea"
+                                                ></textarea>
+                                                @error('editDescription')
+                                                    <p class="kp-error">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+
+                                            <div class="kp-form-grid">
+                                                <div class="kp-field">
+                                                    <label for="edit-priority-{{ $todo->id }}">Priority</label>
+                                                    <select id="edit-priority-{{ $todo->id }}" wire:model="editPriority" class="kp-select">
+                                                        <option value="low">Low</option>
+                                                        <option value="medium">Medium</option>
+                                                        <option value="high">High</option>
+                                                    </select>
+                                                    @error('editPriority')
+                                                        <p class="kp-error">{{ $message }}</p>
+                                                    @enderror
+                                                </div>
+
+                                                <div class="kp-field">
+                                                    <label for="edit-deadline-{{ $todo->id }}">Deadline</label>
+                                                    <input
+                                                        id="edit-deadline-{{ $todo->id }}"
+                                                        type="date"
+                                                        wire:model="editDeadline"
+                                                        class="kp-input"
+                                                    >
+                                                    @error('editDeadline')
+                                                        <p class="kp-error">{{ $message }}</p>
+                                                    @enderror
+                                                </div>
+                                            </div>
+
+                                            <div class="kp-edit-actions">
+                                                <button type="submit" class="kp-edit-save-btn" wire:loading.attr="disabled" wire:target="updateTask">
+                                                    <span wire:loading.remove wire:target="updateTask">Save</span>
+                                                    <span wire:loading wire:target="updateTask">Saving...</span>
+                                                </button>
+
+                                                <button type="button" class="kp-edit-cancel-btn" wire:click="cancelEdit" wire:loading.attr="disabled">
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </form>
+                                    @else
+                                        <div class="kp-card-top">
+                                            <div>
+                                                <h3 class="kp-card-title">{{ $todo->title }}</h3>
+
+                                                @if ($todo->description)
+                                                    <p class="kp-card-desc">{{ $todo->description }}</p>
+                                                @else
+                                                    <p class="kp-card-desc">No description added.</p>
+                                                @endif
+                                            </div>
+
+                                            <div class="kp-card-actions">
+                                                <button
+                                                    type="button"
+                                                    class="kp-edit-btn"
+                                                    title="Edit task"
+                                                    wire:click="editTask({{ $todo->id }})"
+                                                    @click.stop
+                                                >
+                                                    Edit
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    class="kp-delete-btn"
+                                                    title="Delete task"
+                                                    onclick="if (! confirm('Delete this task?')) { event.stopImmediatePropagation(); }"
+                                                    wire:click="deleteTask({{ $todo->id }})"
+                                                    @click.stop
+                                                >
+                                                    <svg class="kp-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                        <path d="M9.75 9.75v6.5M14.25 9.75v6.5M5.75 6.75h12.5M10 4h4a1.5 1.5 0 0 1 1.5 1.5v1.25h-7V5.5A1.5 1.5 0 0 1 10 4ZM7 6.75l.65 11.1A2.25 2.25 0 0 0 9.9 20h4.2a2.25 2.25 0 0 0 2.25-2.15L17 6.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
                                         </div>
 
-                                        <button
-                                            type="button"
-                                            class="kp-delete-btn"
-                                            title="Delete task"
-                                            onclick="if (! confirm('Delete this task?')) { event.stopImmediatePropagation(); }"
-                                            wire:click="deleteTask({{ $todo->id }})"
-                                            @click.stop
-                                        >
-                                            <svg class="kp-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                                <path d="M9.75 9.75v6.5M14.25 9.75v6.5M5.75 6.75h12.5M10 4h4a1.5 1.5 0 0 1 1.5 1.5v1.25h-7V5.5A1.5 1.5 0 0 1 10 4ZM7 6.75l.65 11.1A2.25 2.25 0 0 0 9.9 20h4.2a2.25 2.25 0 0 0 2.25-2.15L17 6.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-
-                                    <div class="kp-card-meta">
-                                        <span class="kp-pill {{ $priorityClass }}">
-                                            <svg class="kp-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                                <path d="M6 20V5.75A1.75 1.75 0 0 1 7.75 4h8.75l-1.75 4L16.5 12H7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
-                                            {{ ucfirst($priority) }}
-                                        </span>
-
-                                        @if ($deadlineDate)
-                                            <span class="kp-pill {{ $isOverdue ? 'kp-pill-overdue' : '' }}">
+                                        <div class="kp-card-meta">
+                                            <span class="kp-pill {{ $priorityClass }}">
                                                 <svg class="kp-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                                    <path d="M7 3.75v2.5M17 3.75v2.5M4.75 8.75h14.5M7.5 5h9A2.75 2.75 0 0 1 19.25 7.75v8.75A2.75 2.75 0 0 1 16.5 19.25h-9A2.75 2.75 0 0 1 4.75 16.5V7.75A2.75 2.75 0 0 1 7.5 5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                                                    <path d="M6 20V5.75A1.75 1.75 0 0 1 7.75 4h8.75l-1.75 4L16.5 12H7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg>
-                                                {{ $deadlineDate->format('M d, Y') }}
+                                                {{ ucfirst($priority) }}
                                             </span>
-                                        @else
-                                            <span class="kp-pill">
-                                                <svg class="kp-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                                    <path d="M7 3.75v2.5M17 3.75v2.5M4.75 8.75h14.5M7.5 5h9A2.75 2.75 0 0 1 19.25 7.75v8.75A2.75 2.75 0 0 1 16.5 19.25h-9A2.75 2.75 0 0 1 4.75 16.5V7.75A2.75 2.75 0 0 1 7.5 5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                                                </svg>
-                                                No deadline
-                                            </span>
-                                        @endif
-                                    </div>
+
+                                            @if ($deadlineDate)
+                                                <span class="kp-pill {{ $isOverdue ? 'kp-pill-overdue' : '' }}">
+                                                    <svg class="kp-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                        <path d="M7 3.75v2.5M17 3.75v2.5M4.75 8.75h14.5M7.5 5h9A2.75 2.75 0 0 1 19.25 7.75v8.75A2.75 2.75 0 0 1 16.5 19.25h-9A2.75 2.75 0 0 1 4.75 16.5V7.75A2.75 2.75 0 0 1 7.5 5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                                                    </svg>
+                                                    {{ $deadlineDate->format('M d, Y') }}
+                                                </span>
+                                            @else
+                                                <span class="kp-pill">
+                                                    <svg class="kp-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                        <path d="M7 3.75v2.5M17 3.75v2.5M4.75 8.75h14.5M7.5 5h9A2.75 2.75 0 0 1 19.25 7.75v8.75A2.75 2.75 0 0 1 16.5 19.25h-9A2.75 2.75 0 0 1 4.75 16.5V7.75A2.75 2.75 0 0 1 7.5 5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                                                    </svg>
+                                                    No deadline
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @endif
                                 </article>
                             @empty
                                 <div class="kp-empty">
