@@ -621,6 +621,164 @@
             border-color: #e5e7eb;
         }
 
+
+        .kp-attachments {
+            margin-top: 10px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 10px;
+        }
+
+        .kp-attachment-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .kp-attachment-list {
+            display: grid;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .kp-attachment-row {
+            display: grid;
+            grid-template-columns: 20px minmax(0, 1fr) auto 24px;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #f1f5f9;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 7px 8px;
+            font-size: 12px;
+            font-weight: 750;
+            color: #334155;
+            overflow: hidden;
+        }
+
+        .kp-attachment-name {
+            min-width: 0;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            line-height: 1.35;
+            color: #334155;
+            text-decoration: none;
+        }
+
+        .kp-attachment-name:hover {
+            color: #8a6500;
+            text-decoration: underline;
+        }
+
+        .kp-attachment-size {
+            font-size: 10px;
+            font-weight: 900;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+
+        .kp-attachment-delete {
+            width: 22px;
+            height: 22px;
+            display: grid;
+            place-items: center;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: #dc2626;
+            cursor: pointer;
+            font-weight: 900;
+        }
+
+        .kp-attachment-delete:hover {
+            background: #fee2e2;
+        }
+
+        .kp-attachment-form {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .kp-attachment-input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #FFE761;
+            border-radius: 12px;
+            padding: 8px 9px;
+            font-size: 12px;
+            font-weight: 750;
+            outline: none;
+            background: white;
+        }
+
+        .kp-attachment-add,
+        .kp-attachment-cancel,
+        .kp-attachment-start {
+            border: 1px solid #FFE761;
+            border-radius: 999px;
+            background: #FFF9E2;
+            color: #8a6500;
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .kp-attachment-start {
+            width: 100%;
+            margin-top: 2px;
+            background: white;
+            color: #475569;
+            border-color: #e5e7eb;
+        }
+
+
+        .kp-head-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kp-mini-action {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #e5e7eb;
+            border-radius: 999px;
+            background: #ffffff;
+            color: #475569;
+            display: inline-grid;
+            place-items: center;
+            cursor: pointer;
+            transition: .18s ease;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        .kp-mini-action:hover {
+            border-color: #FFD500;
+            background: #FFF9E2;
+            color: #8a6500;
+        }
+
+        .kp-mini-action svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .kp-subtask-form,
+        .kp-attachment-form {
+            margin-top: 8px;
+        }
+
     </style>
 
     <div class="kp-shell">
@@ -772,7 +930,24 @@
                                     <div class="kp-subtasks" @click.stop draggable="false">
                                         <div class="kp-subtask-head">
                                             <span>Checklist</span>
-                                            <span>{{ $completedSubtasks }} / {{ $totalSubtasks }}</span>
+
+                                            <div class="kp-head-actions">
+                                                <span>{{ $completedSubtasks }} / {{ $totalSubtasks }}</span>
+
+                                                @if ($subtaskTodoId !== $todo->id)
+                                                    <button
+                                                        type="button"
+                                                        class="kp-mini-action"
+                                                        wire:click="startAddingSubtask({{ $todo->id }})"
+                                                        title="Add subtask"
+                                                        aria-label="Add subtask"
+                                                    >
+                                                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                        </svg>
+                                                    </button>
+                                                @endif
+                                            </div>
                                         </div>
 
                                         @if ($totalSubtasks > 0)
@@ -819,18 +994,93 @@
                                             @error('subtaskTitle')
                                                 <p class="kp-error">{{ $message }}</p>
                                             @enderror
-                                        @else
-                                            <button
-                                                type="button"
-                                                class="kp-subtask-start"
-                                                wire:click="startAddingSubtask({{ $todo->id }})"
-                                            >
-                                                + Add subtask
-                                            </button>
                                         @endif
                                     </div>
 
-                                </article>
+                                
+
+                                    @php
+                                        $totalAttachments = $todo->attachments->count();
+                                    @endphp
+
+                                    <div class="kp-attachments" @click.stop draggable="false">
+                                        <div class="kp-attachment-head">
+                                            <span>Attachments</span>
+
+                                            <div class="kp-head-actions">
+                                                <span>{{ $totalAttachments }}</span>
+
+                                                @if ($attachmentTodoId !== $todo->id)
+                                                    <button
+                                                        type="button"
+                                                        class="kp-mini-action"
+                                                        wire:click="startAddingAttachment({{ $todo->id }})"
+                                                        title="Add attachment"
+                                                        aria-label="Add attachment"
+                                                    >
+                                                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                            <path d="M21.44 11.05l-8.49 8.49a5 5 0 01-7.07-7.07l9.19-9.19a3.5 3.5 0 114.95 4.95l-9.19 9.19a2 2 0 01-2.83-2.83l8.48-8.49" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        </svg>
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        @if ($totalAttachments > 0)
+                                            <div class="kp-attachment-list">
+                                                @foreach ($todo->attachments as $attachment)
+                                                    <div class="kp-attachment-row" wire:key="attachment-{{ $attachment->id }}">
+                                                        <span>📎</span>
+
+                                                        <a
+                                                            class="kp-attachment-name"
+                                                            href="{{ '/storage/' . $attachment->path }}"
+                                                            target="_blank"
+                                                        >
+                                                            {{ $attachment->original_name }}
+                                                        </a>
+
+                                                        <span class="kp-attachment-size">
+                                                            {{ number_format(($attachment->size ?? 0) / 1024, 1) }} KB
+                                                        </span>
+
+                                                        <button
+                                                            type="button"
+                                                            class="kp-attachment-delete"
+                                                            title="Delete attachment"
+                                                            wire:click="deleteAttachment({{ $attachment->id }})"
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+                                        @if ($attachmentTodoId === $todo->id)
+                                            <form wire:submit.prevent="uploadAttachment({{ $todo->id }})" class="kp-attachment-form">
+                                                <input
+                                                    type="file"
+                                                    class="kp-attachment-input"
+                                                    wire:model="attachmentFile"
+                                                >
+
+                                                <button type="submit" class="kp-attachment-add">Upload</button>
+
+                                                <button type="button" class="kp-attachment-cancel" wire:click="cancelAddingAttachment">Cancel</button>
+                                            </form>
+
+                                            <div wire:loading wire:target="attachmentFile" style="margin-top:6px;font-size:11px;font-weight:800;color:#64748b;">
+                                                Preparing file...
+                                            </div>
+
+                                            @error('attachmentFile')
+                                                <p class="kp-error">{{ $message }}</p>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+</article>
                             @empty
                                 <div class="kp-empty"><strong>No tasks here yet</strong>Drop cards here or create a new task in To Do.</div>
                             @endforelse

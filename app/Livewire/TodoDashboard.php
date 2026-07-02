@@ -3,18 +3,23 @@
 namespace App\Livewire;
 
 use App\Models\Todo;
+use App\Models\TodoAttachment;
 use App\Models\Subtask;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.app')]
 class TodoDashboard extends Component
 {
+    use WithFileUploads;
+
     public const STATUS_TODO = 'todo';
     public const STATUS_IN_PROGRESS = 'in_progress';
     public const STATUS_REVIEW = 'review';
@@ -68,6 +73,10 @@ class TodoDashboard extends Component
     public ?int $subtaskTodoId = null;
 
     public string $subtaskTitle = '';
+
+    public ?int $attachmentTodoId = null;
+
+    public $attachmentFile = null;
 
     protected function rules(): array
     {
@@ -219,6 +228,63 @@ class TodoDashboard extends Component
             ->delete();
     }
 
+    public function startAddingAttachment(int $todoId): void
+    {
+        $this->authorizeTaskAction('update tasks');
+
+        Todo::query()->findOrFail($todoId);
+
+        $this->attachmentTodoId = $todoId;
+        $this->attachmentFile = null;
+
+        $this->resetValidation('attachmentFile');
+    }
+
+    public function uploadAttachment(int $todoId): void
+    {
+        $this->authorizeTaskAction('update tasks');
+
+        $validated = $this->validate([
+            'attachmentFile' => ['required', 'file', 'max:5120', 'mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg,webp,txt,zip'],
+        ]);
+
+        $todo = Todo::query()->findOrFail($todoId);
+        $file = $validated['attachmentFile'];
+
+        $path = $file->store('todo-attachments', 'public');
+
+        $todo->attachments()->create([
+            'original_name' => $file->getClientOriginalName(),
+            'path' => $path,
+            'mime_type' => $file->getMimeType(),
+            'size' => $file->getSize() ?? 0,
+        ]);
+
+        $this->attachmentTodoId = null;
+        $this->attachmentFile = null;
+
+        $this->resetValidation('attachmentFile');
+    }
+
+    public function cancelAddingAttachment(): void
+    {
+        $this->attachmentTodoId = null;
+        $this->attachmentFile = null;
+
+        $this->resetValidation('attachmentFile');
+    }
+
+    public function deleteAttachment(int $attachmentId): void
+    {
+        $this->authorizeTaskAction('update tasks');
+
+        $attachment = TodoAttachment::query()->findOrFail($attachmentId);
+
+        Storage::disk('public')->delete($attachment->path);
+
+        $attachment->delete();
+    }
+
     public function updateTodoStatus(int $todoId, string $status): void
     {
         $this->authorizeTaskAction('move tasks');
@@ -310,7 +376,7 @@ class TodoDashboard extends Component
     public function render(): View
     {
         $todos = $this->applyTodoSorting(
-            Todo::query()->with('subtasks')
+            Todo::query()->with(['subtasks', 'attachments'])
                 ->orderByRaw("
                     CASE status
                         WHEN 'todo' THEN 1

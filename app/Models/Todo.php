@@ -44,4 +44,9 @@ class Todo extends Model
         return $this->hasMany(Subtask::class)->oldest();
     }
 
+    public function attachments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TodoAttachment::class)->latest();
+    }
+
 }
