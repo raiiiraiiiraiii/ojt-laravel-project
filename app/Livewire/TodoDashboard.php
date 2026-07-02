@@ -32,6 +32,18 @@ class TodoDashboard extends Component
         'high',
     ];
 
+    public const SORT_RECENT = 'recent';
+    public const SORT_ALPHA = 'alpha';
+    public const SORT_PRIORITY = 'priority';
+    public const SORT_DEADLINE = 'deadline';
+
+    public const SORT_OPTIONS = [
+        self::SORT_RECENT,
+        self::SORT_ALPHA,
+        self::SORT_PRIORITY,
+        self::SORT_DEADLINE,
+    ];
+
     public string $title = '';
 
     public string $description = '';
@@ -39,6 +51,8 @@ class TodoDashboard extends Component
     public string $priority = 'medium';
 
     public ?string $deadline = null;
+
+    public string $sortBy = self::SORT_RECENT;
 
     public ?int $editingTodoId = null;
 
@@ -194,19 +208,54 @@ class TodoDashboard extends Component
         }
     }
 
+    public function updatedSortBy(string $value): void
+    {
+        if (! in_array($value, self::SORT_OPTIONS, true)) {
+            $this->sortBy = self::SORT_RECENT;
+        }
+    }
+
+    private function applyTodoSorting($query)
+    {
+        return match ($this->sortBy) {
+            self::SORT_ALPHA => $query
+                ->orderBy('title')
+                ->latest('updated_at'),
+
+            self::SORT_PRIORITY => $query
+                ->orderByRaw("
+                    CASE priority
+                        WHEN 'high' THEN 1
+                        WHEN 'medium' THEN 2
+                        WHEN 'low' THEN 3
+                        ELSE 4
+                    END
+                ")
+                ->latest('updated_at'),
+
+            self::SORT_DEADLINE => $query
+                ->orderByRaw("CASE WHEN deadline IS NULL THEN 1 ELSE 0 END")
+                ->orderBy('deadline')
+                ->latest('updated_at'),
+
+            default => $query->latest('updated_at'),
+        };
+    }
+
     public function render(): View
     {
-        $todos = Todo::query()
-            ->orderByRaw("
-                CASE status
-                    WHEN 'todo' THEN 1
-                    WHEN 'in_progress' THEN 2
-                    WHEN 'review' THEN 3
-                    WHEN 'done' THEN 4
-                    ELSE 5
-                END
-            ")
-            ->latest('updated_at')
+        $todos = $this->applyTodoSorting(
+            Todo::query()
+                ->orderByRaw("
+                    CASE status
+                        WHEN 'todo' THEN 1
+                        WHEN 'in_progress' THEN 2
+                        WHEN 'review' THEN 3
+                        WHEN 'done' THEN 4
+                        ELSE 5
+                    END
+                ")
+        )
             ->get()
             ->groupBy('status');
 
