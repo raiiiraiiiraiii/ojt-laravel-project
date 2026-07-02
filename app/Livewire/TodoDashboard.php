@@ -3,17 +3,23 @@
 namespace App\Livewire;
 
 use App\Models\Todo;
+use App\Models\TodoAttachment;
+use App\Models\Subtask;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.app')]
 class TodoDashboard extends Component
 {
+    use WithFileUploads;
+
     public const STATUS_TODO = 'todo';
     public const STATUS_IN_PROGRESS = 'in_progress';
     public const STATUS_REVIEW = 'review';
@@ -32,6 +38,18 @@ class TodoDashboard extends Component
         'high',
     ];
 
+    public const SORT_RECENT = 'recent';
+    public const SORT_ALPHA = 'alpha';
+    public const SORT_PRIORITY = 'priority';
+    public const SORT_DEADLINE = 'deadline';
+
+    public const SORT_OPTIONS = [
+        self::SORT_RECENT,
+        self::SORT_ALPHA,
+        self::SORT_PRIORITY,
+        self::SORT_DEADLINE,
+    ];
+
     public string $title = '';
 
     public string $description = '';
@@ -39,6 +57,8 @@ class TodoDashboard extends Component
     public string $priority = 'medium';
 
     public ?string $deadline = null;
+
+    public string $sortBy = self::SORT_RECENT;
 
     public ?int $editingTodoId = null;
 
@@ -49,6 +69,14 @@ class TodoDashboard extends Component
     public string $editPriority = 'medium';
 
     public ?string $editDeadline = null;
+
+    public ?int $subtaskTodoId = null;
+
+    public string $subtaskTitle = '';
+
+    public ?int $attachmentTodoId = null;
+
+    public $attachmentFile = null;
 
     protected function rules(): array
     {
@@ -140,6 +168,123 @@ class TodoDashboard extends Component
         $this->resetValidation();
     }
 
+    public function startAddingSubtask(int $todoId): void
+    {
+        $this->authorizeTaskAction('update tasks');
+
+        Todo::query()->findOrFail($todoId);
+
+        $this->subtaskTodoId = $todoId;
+        $this->subtaskTitle = '';
+
+        $this->resetValidation('subtaskTitle');
+    }
+
+    public function addSubtask(int $todoId): void
+    {
+        $this->authorizeTaskAction('update tasks');
+
+        $validated = $this->validate([
+            'subtaskTitle' => ['required', 'string', 'max:255'],
+        ]);
+
+        $todo = Todo::query()->findOrFail($todoId);
+
+        $todo->subtasks()->create([
+            'title' => trim($validated['subtaskTitle']),
+            'is_completed' => false,
+        ]);
+
+        $this->subtaskTodoId = $todoId;
+        $this->subtaskTitle = '';
+
+        $this->resetValidation('subtaskTitle');
+    }
+
+    public function cancelAddingSubtask(): void
+    {
+        $this->subtaskTodoId = null;
+        $this->subtaskTitle = '';
+
+        $this->resetValidation('subtaskTitle');
+    }
+
+    public function toggleSubtask(int $subtaskId): void
+    {
+        $this->authorizeTaskAction('update tasks');
+
+        $subtask = Subtask::query()->findOrFail($subtaskId);
+
+        $subtask->is_completed = ! $subtask->is_completed;
+        $subtask->save();
+    }
+
+    public function deleteSubtask(int $subtaskId): void
+    {
+        $this->authorizeTaskAction('update tasks');
+
+        Subtask::query()
+            ->whereKey($subtaskId)
+            ->delete();
+    }
+
+    public function startAddingAttachment(int $todoId): void
+    {
+        $this->authorizeTaskAction('update tasks');
+
+        Todo::query()->findOrFail($todoId);
+
+        $this->attachmentTodoId = $todoId;
+        $this->attachmentFile = null;
+
+        $this->resetValidation('attachmentFile');
+    }
+
+    public function uploadAttachment(int $todoId): void
+    {
+        $this->authorizeTaskAction('update tasks');
+
+        $validated = $this->validate([
+            'attachmentFile' => ['required', 'file', 'max:5120', 'mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg,webp,txt,zip'],
+        ]);
+
+        $todo = Todo::query()->findOrFail($todoId);
+        $file = $validated['attachmentFile'];
+
+        $path = $file->store('todo-attachments', 'public');
+
+        $todo->attachments()->create([
+            'original_name' => $file->getClientOriginalName(),
+            'path' => $path,
+            'mime_type' => $file->getMimeType(),
+            'size' => $file->getSize() ?? 0,
+        ]);
+
+        $this->attachmentTodoId = null;
+        $this->attachmentFile = null;
+
+        $this->resetValidation('attachmentFile');
+    }
+
+    public function cancelAddingAttachment(): void
+    {
+        $this->attachmentTodoId = null;
+        $this->attachmentFile = null;
+
+        $this->resetValidation('attachmentFile');
+    }
+
+    public function deleteAttachment(int $attachmentId): void
+    {
+        $this->authorizeTaskAction('update tasks');
+
+        $attachment = TodoAttachment::query()->findOrFail($attachmentId);
+
+        Storage::disk('public')->delete($attachment->path);
+
+        $attachment->delete();
+    }
+
     public function updateTodoStatus(int $todoId, string $status): void
     {
         $this->authorizeTaskAction('move tasks');
@@ -194,19 +339,54 @@ class TodoDashboard extends Component
         }
     }
 
+    public function updatedSortBy(string $value): void
+    {
+        if (! in_array($value, self::SORT_OPTIONS, true)) {
+            $this->sortBy = self::SORT_RECENT;
+        }
+    }
+
+    private function applyTodoSorting($query)
+    {
+        return match ($this->sortBy) {
+            self::SORT_ALPHA => $query
+                ->orderBy('title')
+                ->latest('updated_at'),
+
+            self::SORT_PRIORITY => $query
+                ->orderByRaw("
+                    CASE priority
+                        WHEN 'high' THEN 1
+                        WHEN 'medium' THEN 2
+                        WHEN 'low' THEN 3
+                        ELSE 4
+                    END
+                ")
+                ->latest('updated_at'),
+
+            self::SORT_DEADLINE => $query
+                ->orderByRaw("CASE WHEN deadline IS NULL THEN 1 ELSE 0 END")
+                ->orderBy('deadline')
+                ->latest('updated_at'),
+
+            default => $query->latest('updated_at'),
+        };
+    }
+
     public function render(): View
     {
-        $todos = Todo::query()
-            ->orderByRaw("
-                CASE status
-                    WHEN 'todo' THEN 1
-                    WHEN 'in_progress' THEN 2
-                    WHEN 'review' THEN 3
-                    WHEN 'done' THEN 4
-                    ELSE 5
-                END
-            ")
-            ->latest('updated_at')
+        $todos = $this->applyTodoSorting(
+            Todo::query()->with(['subtasks', 'attachments'])
+                ->orderByRaw("
+                    CASE status
+                        WHEN 'todo' THEN 1
+                        WHEN 'in_progress' THEN 2
+                        WHEN 'review' THEN 3
+                        WHEN 'done' THEN 4
+                        ELSE 5
+                    END
+                ")
+        )
             ->get()
             ->groupBy('status');
 

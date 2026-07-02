@@ -159,58 +159,675 @@
         .kp-soft-yellow { background: #FFF9E2; color: #9a6b00; } .kp-soft-blue { background: #e0f2fe; color: #0369a1; } .kp-soft-purple { background: #f3e8ff; color: #7e22ce; } .kp-soft-green { background: #dcfce7; color: #15803d; }
         .kp-svg { width: 18px; height: 18px; }
         .kp-loading { opacity: .7; }
+
+
+        /* Premium minimalist hero refresh */
+        .kp-page {
+            background:
+                radial-gradient(circle at 16% 0%, rgba(255, 213, 0, .26), transparent 28%),
+                radial-gradient(circle at 86% 8%, rgba(255, 231, 97, .34), transparent 24%),
+                linear-gradient(135deg, #FFF9E2 0%, #FFFCF1 48%, #FFF5C7 100%);
+        }
+        .kp-hero-minimal {
+            border-radius: 30px;
+            padding: 22px 26px;
+            background:
+                linear-gradient(135deg, rgba(255,255,255,.96), rgba(255,252,237,.90)),
+                radial-gradient(circle at 100% 0%, rgba(255,213,0,.16), transparent 40%);
+            box-shadow: 0 18px 52px rgba(67, 56, 20, .12);
+            margin-bottom: 14px;
+        }
+        .kp-hero-minimal::after { display: none; }
+        .kp-hero-minimal .kp-hero-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 320px;
+            align-items: center;
+            gap: 20px;
+        }
+        .kp-hero-minimal .kp-brand-row { align-items: center; gap: 15px; }
+        .kp-hero-minimal .kp-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 22px;
+            box-shadow: 0 14px 28px rgba(17,24,39,.16);
+        }
+        .kp-hero-minimal .kp-logo svg { width: 32px; height: 32px; }
+        .kp-hero-minimal .kp-eyebrow {
+            padding: 6px 10px;
+            font-size: 11px;
+            background: rgba(255,255,255,.78);
+        }
+        .kp-hero-minimal .kp-title {
+            margin-top: 7px;
+            font-size: clamp(42px, 4.4vw, 62px);
+            line-height: .95;
+            letter-spacing: -.065em;
+        }
+        .kp-hero-minimal .kp-subtitle {
+            max-width: 560px;
+            margin-top: 8px;
+            color: #475569;
+            font-size: 14px;
+            line-height: 1.45;
+            font-weight: 700;
+        }
+        .kp-hero-minimal .kp-pulse {
+            border-radius: 24px;
+            padding: 18px;
+            box-shadow: 0 16px 34px rgba(17,24,39,.18);
+        }
+        .kp-hero-minimal .kp-pulse-label {
+            margin-bottom: 11px;
+            font-size: 11px;
+            color: #fde68a;
+        }
+        .kp-hero-minimal .kp-pulse-grid {
+            grid-template-columns: 78px 1fr;
+            gap: 14px;
+        }
+        .kp-hero-minimal .kp-ring { width: 78px; height: 78px; }
+        .kp-hero-minimal .kp-ring::before { width: 54px; height: 54px; }
+        .kp-hero-minimal .kp-ring strong { font-size: 19px; }
+        .kp-hero-minimal .kp-pulse-title { font-size: 19px; }
+        .kp-hero-minimal .kp-pulse-copy { margin-top: 5px; font-size: 12px; line-height: 1.35; }
+        .kp-stats {
+            grid-template-columns: repeat(5, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 14px 0 18px;
+        }
+        .kp-stat {
+            border-radius: 20px;
+            padding: 13px 14px;
+            background: rgba(255,255,255,.78);
+            box-shadow: 0 10px 26px rgba(67,56,20,.07);
+        }
+        .kp-stat small { font-size: 11px; letter-spacing: .055em; }
+        .kp-stat strong { margin-top: 6px; font-size: 28px; }
+        .kp-stat span { margin-top: 5px; font-size: 11px; color: #a16207; }
+        .kp-toolbar { margin-bottom: 12px; }
+        .kp-section-title { font-size: 22px; }
+        .kp-hint { padding: 9px 13px; font-size: 12px; }
+        @media (max-width: 1050px) {
+            .kp-hero-minimal .kp-hero-grid { grid-template-columns: 1fr; }
+            .kp-hero-minimal .kp-pulse { max-width: 420px; }
+        }
+        @media (max-width: 640px) {
+            .kp-hero-minimal { padding: 18px; }
+            .kp-hero-minimal .kp-brand-row { align-items: flex-start; }
+            .kp-hero-minimal .kp-logo { width: 54px; height: 54px; }
+            .kp-hero-minimal .kp-title { font-size: 42px; }
+        }
+
+
+        /* Compact premium workspace: fewer empty spaces, more board area */
+        .kp-page {
+            padding: 18px 22px;
+            background:
+                radial-gradient(circle at 12% 0%, rgba(255, 213, 0, .20), transparent 24%),
+                radial-gradient(circle at 92% 6%, rgba(255, 231, 97, .24), transparent 22%),
+                linear-gradient(135deg, #FFF9E2 0%, #FFFCF1 52%, #FFF6CF 100%);
+        }
+        .kp-shell {
+            max-width: 1760px;
+        }
+        .kp-command-bar {
+            display: grid;
+            grid-template-columns: minmax(280px, .7fr) minmax(520px, 1.25fr) minmax(230px, .55fr);
+            gap: 12px;
+            align-items: stretch;
+            border: 1px solid rgba(234,179,8,.26);
+            border-radius: 28px;
+            padding: 12px;
+            margin-bottom: 12px;
+            background: rgba(255, 255, 255, .86);
+            box-shadow: 0 16px 44px rgba(67, 56, 20, .11);
+            backdrop-filter: blur(10px);
+        }
+        .kp-compact-brand,
+        .kp-metrics-strip,
+        .kp-board-compact-status {
+            border-radius: 22px;
+            min-height: 76px;
+        }
+        .kp-compact-brand {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px 14px;
+            background: linear-gradient(135deg, rgba(255,255,255,.88), rgba(255,249,226,.64));
+        }
+        .kp-compact-logo {
+            width: 52px;
+            height: 52px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 18px;
+            background: #111827;
+            color: #FFD500;
+            box-shadow: 0 12px 26px rgba(17,24,39,.16);
+        }
+        .kp-compact-logo svg { width: 29px; height: 29px; }
+        .kp-compact-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: #9a6b00;
+            font-size: 10px;
+            font-weight: 1000;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+        .kp-compact-title {
+            margin: 2px 0 0;
+            font-size: clamp(30px, 3vw, 44px);
+            line-height: .95;
+            letter-spacing: -.065em;
+            font-weight: 1000;
+            color: #111827;
+        }
+        .kp-metrics-strip {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 8px;
+            padding: 8px;
+            background: linear-gradient(135deg, rgba(255,249,226,.72), rgba(255,255,255,.74));
+        }
+        .kp-metric-pill {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 3px;
+            border: 1px solid rgba(234,179,8,.20);
+            border-radius: 17px;
+            padding: 10px 11px;
+            background: rgba(255,255,255,.76);
+        }
+        .kp-metric-pill small {
+            color: #64748b;
+            font-size: 10px;
+            font-weight: 1000;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+        }
+        .kp-metric-pill strong {
+            color: #111827;
+            font-size: 26px;
+            line-height: .9;
+            font-weight: 1000;
+            letter-spacing: -.06em;
+        }
+        .kp-metric-pill span {
+            color: #a16207;
+            font-size: 10px;
+            font-weight: 900;
+        }
+        .kp-board-compact-status {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px 14px;
+            background: #111827;
+            color: white;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+        }
+        .kp-mini-ring {
+            position: relative;
+            width: 58px;
+            height: 58px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: conic-gradient(#FFD500 calc({{ $completionRate }} * 1%), rgba(255,255,255,.14) 0);
+        }
+        .kp-mini-ring::before {
+            content: "";
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #111827;
+        }
+        .kp-mini-ring strong {
+            position: relative;
+            z-index: 1;
+            font-size: 15px;
+            font-weight: 1000;
+            letter-spacing: -.04em;
+        }
+        .kp-status-text small {
+            display: block;
+            margin-bottom: 3px;
+            color: #fde68a;
+            font-size: 10px;
+            font-weight: 1000;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+        .kp-status-text strong {
+            display: block;
+            font-size: 19px;
+            line-height: 1.05;
+            font-weight: 1000;
+            letter-spacing: -.04em;
+        }
+        .kp-status-text span {
+            display: block;
+            margin-top: 4px;
+            color: #cbd5e1;
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .kp-toolbar {
+            margin: 0 0 10px;
+            padding: 0 2px;
+        }
+        .kp-section-title {
+            font-size: 19px;
+        }
+        .kp-hint {
+            padding: 8px 12px;
+            font-size: 12px;
+            box-shadow: none;
+        }
+        .kp-board-scroll {
+            padding-bottom: 8px;
+        }
+        .kp-board {
+            grid-template-columns: repeat(4, minmax(280px, 1fr));
+            min-width: 1120px;
+            gap: 14px;
+        }
+        .kp-column {
+            border-radius: 24px;
+        }
+        .kp-column-head {
+            padding: 14px;
+        }
+        .kp-column-body {
+            padding: 12px;
+            gap: 10px;
+            min-height: 300px;
+        }
+        .kp-icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 15px;
+        }
+        .kp-column-title { font-size: 17px; }
+        .kp-column-desc { display: none; }
+        .kp-count {
+            min-width: 36px;
+            height: 36px;
+            border-radius: 14px;
+        }
+        .kp-card {
+            border-radius: 20px;
+            padding: 12px;
+        }
+        .kp-card:hover {
+            transform: translateY(-2px);
+        }
+        .kp-card-desc {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .kp-card-meta {
+            margin-top: 10px;
+        }
+        .kp-add-summary {
+            padding: 11px 12px;
+            border-radius: 18px;
+        }
+        .kp-empty {
+            padding: 22px 14px;
+            border-radius: 20px;
+        }
+        @media (max-width: 1180px) {
+            .kp-command-bar {
+                grid-template-columns: 1fr;
+            }
+            .kp-metrics-strip {
+                grid-template-columns: repeat(5, minmax(100px, 1fr));
+                overflow-x: auto;
+            }
+            .kp-board-compact-status {
+                justify-content: space-between;
+            }
+        }
+        @media (max-width: 640px) {
+            .kp-page { padding: 14px; }
+            .kp-command-bar { border-radius: 24px; padding: 10px; }
+            .kp-metrics-strip { grid-template-columns: repeat(5, 104px); }
+            .kp-compact-title { font-size: 34px; }
+        }
+
         @media (max-width: 1050px) { .kp-hero-grid { grid-template-columns: 1fr; } .kp-stats { grid-template-columns: repeat(2,minmax(0,1fr)); } }
         @media (max-width: 640px) { .kp-page { padding: 18px; } .kp-hero { border-radius: 26px; padding: 20px; } .kp-brand-row { align-items: flex-start; } .kp-logo { width: 58px; height: 58px; border-radius: 20px; } .kp-toolbar { align-items: flex-start; flex-direction: column; } }
+
+        .kp-subtasks {
+            margin-top: 10px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 10px;
+        }
+
+        .kp-subtask-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .kp-subtask-list {
+            display: grid;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .kp-subtask-row {
+            display: grid;
+            grid-template-columns: 18px minmax(0, 1fr) 24px;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #f1f5f9;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 7px 8px;
+            font-size: 12px;
+            font-weight: 750;
+            color: #334155;
+            overflow: hidden;
+        }
+
+        .kp-subtask-row span {
+            min-width: 0;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            line-height: 1.35;
+        }
+
+        .kp-subtask-row input {
+            accent-color: #FFD500;
+        }
+
+        .kp-subtask-done {
+            color: #94a3b8;
+            text-decoration: line-through;
+        }
+
+        .kp-subtask-delete {
+            width: 22px;
+            height: 22px;
+            display: grid;
+            place-items: center;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: #dc2626;
+            cursor: pointer;
+            font-weight: 900;
+        }
+
+        .kp-subtask-delete:hover {
+            background: #fee2e2;
+        }
+
+        .kp-subtask-form {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 6px;
+            align-items: start;
+        }
+
+        .kp-subtask-input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #FFE761;
+            border-radius: 12px;
+            padding: 8px 9px;
+            font-size: 12px;
+            font-weight: 750;
+            outline: none;
+        }
+
+        .kp-subtask-add,
+        .kp-subtask-cancel,
+        .kp-subtask-start {
+            border: 1px solid #FFE761;
+            border-radius: 999px;
+            background: #FFF9E2;
+            color: #8a6500;
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .kp-subtask-start {
+            width: 100%;
+            margin-top: 2px;
+            background: white;
+            color: #475569;
+            border-color: #e5e7eb;
+        }
+
+
+        .kp-attachments {
+            margin-top: 10px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 10px;
+        }
+
+        .kp-attachment-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .kp-attachment-list {
+            display: grid;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .kp-attachment-row {
+            display: grid;
+            grid-template-columns: 20px minmax(0, 1fr) auto 24px;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #f1f5f9;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 7px 8px;
+            font-size: 12px;
+            font-weight: 750;
+            color: #334155;
+            overflow: hidden;
+        }
+
+        .kp-attachment-name {
+            min-width: 0;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            line-height: 1.35;
+            color: #334155;
+            text-decoration: none;
+        }
+
+        .kp-attachment-name:hover {
+            color: #8a6500;
+            text-decoration: underline;
+        }
+
+        .kp-attachment-size {
+            font-size: 10px;
+            font-weight: 900;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+
+        .kp-attachment-delete {
+            width: 22px;
+            height: 22px;
+            display: grid;
+            place-items: center;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: #dc2626;
+            cursor: pointer;
+            font-weight: 900;
+        }
+
+        .kp-attachment-delete:hover {
+            background: #fee2e2;
+        }
+
+        .kp-attachment-form {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .kp-attachment-input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #FFE761;
+            border-radius: 12px;
+            padding: 8px 9px;
+            font-size: 12px;
+            font-weight: 750;
+            outline: none;
+            background: white;
+        }
+
+        .kp-attachment-add,
+        .kp-attachment-cancel,
+        .kp-attachment-start {
+            border: 1px solid #FFE761;
+            border-radius: 999px;
+            background: #FFF9E2;
+            color: #8a6500;
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .kp-attachment-start {
+            width: 100%;
+            margin-top: 2px;
+            background: white;
+            color: #475569;
+            border-color: #e5e7eb;
+        }
+
+
+        .kp-head-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kp-mini-action {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #e5e7eb;
+            border-radius: 999px;
+            background: #ffffff;
+            color: #475569;
+            display: inline-grid;
+            place-items: center;
+            cursor: pointer;
+            transition: .18s ease;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        .kp-mini-action:hover {
+            border-color: #FFD500;
+            background: #FFF9E2;
+            color: #8a6500;
+        }
+
+        .kp-mini-action svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .kp-subtask-form,
+        .kp-attachment-form {
+            margin-top: 8px;
+        }
+
     </style>
 
     <div class="kp-shell">
-        <section class="kp-hero">
-            <div class="kp-hero-grid">
-                <div>
-                    <div class="kp-brand-row">
-                        <div class="kp-logo">
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <path d="M9 6.75V5.5A2.5 2.5 0 0 1 11.5 3h1A2.5 2.5 0 0 1 15 5.5v1.25" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                                <path d="M5.75 6.75h12.5A1.75 1.75 0 0 1 20 8.5v9.75A2.75 2.75 0 0 1 17.25 21H6.75A2.75 2.75 0 0 1 4 18.25V8.5a1.75 1.75 0 0 1 1.75-1.75Z" stroke="currentColor" stroke-width="1.8"/>
-                                <path d="M8 11h8M8 15h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <span class="kp-eyebrow"><span class="kp-dot"></span>KayaPa Workspace</span>
-                            <h1 class="kp-title">Make work feel <span>possible.</span></h1>
-                        </div>
-                    </div>
-                    <p class="kp-subtitle">A focused Kanban board for organizing tasks, reviewing progress, and keeping priorities visible without making the workflow feel heavy.</p>
-                    <div class="kp-hero-chips">
-                        <span class="kp-chip">Add tasks in To Do</span>
-                        <span class="kp-chip">Edit details anytime</span>
-                        <span class="kp-chip">Drag cards across lanes</span>
-                    </div>
+        <section class="kp-command-bar" aria-label="KayaPa dashboard summary">
+            <div class="kp-compact-brand">
+                <div class="kp-compact-logo">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M9 6.75V5.5A2.5 2.5 0 0 1 11.5 3h1A2.5 2.5 0 0 1 15 5.5v1.25" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <path d="M5.75 6.75h12.5A1.75 1.75 0 0 1 20 8.5v9.75A2.75 2.75 0 0 1 17.25 21H6.75A2.75 2.75 0 0 1 4 18.25V8.5a1.75 1.75 0 0 1 1.75-1.75Z" stroke="currentColor" stroke-width="1.8"/>
+                        <path d="M8 11h8M8 15h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
                 </div>
-                <aside class="kp-pulse">
-                    <p class="kp-pulse-label">Board pulse</p>
-                    <div class="kp-pulse-grid">
-                        <div class="kp-ring"><strong>{{ $completionRate }}%</strong></div>
-                        <div>
-                            <h2 class="kp-pulse-title">{{ $doneCount }} of {{ $totalTasks }} tasks done</h2>
-                            <p class="kp-pulse-copy">Keep the board light: move what is active, review what needs feedback, and close what is already finished.</p>
-                        </div>
-                    </div>
-                </aside>
+                <div>
+                    <span class="kp-compact-kicker"><span class="kp-dot"></span>Workspace</span>
+                    <h1 class="kp-compact-title">KayaPa</h1>
+                </div>
             </div>
+
+            <div class="kp-metrics-strip" aria-label="Task summary">
+                <div class="kp-metric-pill"><small>Total</small><strong>{{ $totalTasks }}</strong><span>Tasks</span></div>
+                <div class="kp-metric-pill"><small>To Do</small><strong>{{ $todoCount }}</strong><span>Queued</span></div>
+                <div class="kp-metric-pill"><small>Active</small><strong>{{ $progressCount }}</strong><span>Moving</span></div>
+                <div class="kp-metric-pill"><small>Review</small><strong>{{ $reviewCount }}</strong><span>Checking</span></div>
+                <div class="kp-metric-pill"><small>Overdue</small><strong>{{ $overdueCount }}</strong><span>Attention</span></div>
+            </div>
+
+            <aside class="kp-board-compact-status">
+                <div class="kp-mini-ring"><strong>{{ $completionRate }}%</strong></div>
+                <div class="kp-status-text">
+                    <small>Status</small>
+                    <strong>{{ $doneCount }} / {{ $totalTasks }} done</strong>
+                    <span>{{ $overdueCount }} overdue · {{ $progressCount }} active</span>
+                </div>
+            </aside>
         </section>
-
-        <div class="kp-stats">
-            <div class="kp-stat"><small>Total tasks</small><strong>{{ $totalTasks }}</strong><span>Overall workload</span></div>
-            <div class="kp-stat"><small>To Do</small><strong>{{ $todoCount }}</strong><span>Waiting to start</span></div>
-            <div class="kp-stat"><small>In Progress</small><strong>{{ $progressCount }}</strong><span>Currently moving</span></div>
-            <div class="kp-stat"><small>For Review</small><strong>{{ $reviewCount }}</strong><span>Needs checking</span></div>
-            <div class="kp-stat"><small>Overdue</small><strong>{{ $overdueCount }}</strong><span>Needs attention</span></div>
-        </div>
-
-        <div class="kp-toolbar">
-            <h2 class="kp-section-title">Task board</h2>
-            <div class="kp-hint">Drag to move status. Edit to update task details.</div>
+<div style="display:flex;justify-content:flex-end;align-items:center;margin:8px 0 14px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <label for="sortBy" style="font-size:12px;font-weight:900;color:#64748b;">Sort by</label>
+                <select
+                    id="sortBy"
+                    wire:model.live="sortBy"
+                    style="min-width:190px;border:1px solid #FFE761;background:white;border-radius:14px;padding:10px 12px;font-size:13px;font-weight:800;color:#111827;outline:none;"
+                >
+                    <option value="recent">Recently updated</option>
+                    <option value="alpha">Alphabetical A-Z</option>
+                    <option value="priority">Priority level</option>
+                    <option value="deadline">Nearest deadline</option>
+                </select>
+            </div>
         </div>
 
         <div class="kp-board-scroll">
@@ -304,7 +921,166 @@
                                             @endif
                                         </div>
                                     @endif
-                                </article>
+
+                                    @php
+                                        $totalSubtasks = $todo->subtasks->count();
+                                        $completedSubtasks = $todo->subtasks->where('is_completed', true)->count();
+                                    @endphp
+
+                                    <div class="kp-subtasks" @click.stop draggable="false">
+                                        <div class="kp-subtask-head">
+                                            <span>Checklist</span>
+
+                                            <div class="kp-head-actions">
+                                                <span>{{ $completedSubtasks }} / {{ $totalSubtasks }}</span>
+
+                                                @if ($subtaskTodoId !== $todo->id)
+                                                    <button
+                                                        type="button"
+                                                        class="kp-mini-action"
+                                                        wire:click="startAddingSubtask({{ $todo->id }})"
+                                                        title="Add subtask"
+                                                        aria-label="Add subtask"
+                                                    >
+                                                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                        </svg>
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        @if ($totalSubtasks > 0)
+                                            <div class="kp-subtask-list">
+                                                @foreach ($todo->subtasks as $subtask)
+                                                    <div class="kp-subtask-row" wire:key="subtask-{{ $subtask->id }}">
+                                                        <input
+                                                            type="checkbox"
+                                                            @checked($subtask->is_completed)
+                                                            wire:click="toggleSubtask({{ $subtask->id }})"
+                                                        >
+
+                                                        <span class="{{ $subtask->is_completed ? 'kp-subtask-done' : '' }}">
+                                                            {{ $subtask->title }}
+                                                        </span>
+
+                                                        <button
+                                                            type="button"
+                                                            class="kp-subtask-delete"
+                                                            title="Delete subtask"
+                                                            wire:click="deleteSubtask({{ $subtask->id }})"
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+                                        @if ($subtaskTodoId === $todo->id)
+                                            <form wire:submit.prevent="addSubtask({{ $todo->id }})" class="kp-subtask-form">
+                                                <input
+                                                    type="text"
+                                                    class="kp-subtask-input"
+                                                    wire:model="subtaskTitle"
+                                                    placeholder="Add checklist item"
+                                                >
+
+                                                <button type="submit" class="kp-subtask-add">Add</button>
+
+                                                <button type="button" class="kp-subtask-cancel" wire:click="cancelAddingSubtask">Cancel</button>
+                                            </form>
+
+                                            @error('subtaskTitle')
+                                                <p class="kp-error">{{ $message }}</p>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                
+
+                                    @php
+                                        $totalAttachments = $todo->attachments->count();
+                                    @endphp
+
+                                    <div class="kp-attachments" @click.stop draggable="false">
+                                        <div class="kp-attachment-head">
+                                            <span>Attachments</span>
+
+                                            <div class="kp-head-actions">
+                                                <span>{{ $totalAttachments }}</span>
+
+                                                @if ($attachmentTodoId !== $todo->id)
+                                                    <button
+                                                        type="button"
+                                                        class="kp-mini-action"
+                                                        wire:click="startAddingAttachment({{ $todo->id }})"
+                                                        title="Add attachment"
+                                                        aria-label="Add attachment"
+                                                    >
+                                                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                            <path d="M21.44 11.05l-8.49 8.49a5 5 0 01-7.07-7.07l9.19-9.19a3.5 3.5 0 114.95 4.95l-9.19 9.19a2 2 0 01-2.83-2.83l8.48-8.49" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        </svg>
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        @if ($totalAttachments > 0)
+                                            <div class="kp-attachment-list">
+                                                @foreach ($todo->attachments as $attachment)
+                                                    <div class="kp-attachment-row" wire:key="attachment-{{ $attachment->id }}">
+                                                        <span>📎</span>
+
+                                                        <a
+                                                            class="kp-attachment-name"
+                                                            href="{{ '/storage/' . $attachment->path }}"
+                                                            target="_blank"
+                                                        >
+                                                            {{ $attachment->original_name }}
+                                                        </a>
+
+                                                        <span class="kp-attachment-size">
+                                                            {{ number_format(($attachment->size ?? 0) / 1024, 1) }} KB
+                                                        </span>
+
+                                                        <button
+                                                            type="button"
+                                                            class="kp-attachment-delete"
+                                                            title="Delete attachment"
+                                                            wire:click="deleteAttachment({{ $attachment->id }})"
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+                                        @if ($attachmentTodoId === $todo->id)
+                                            <form wire:submit.prevent="uploadAttachment({{ $todo->id }})" class="kp-attachment-form">
+                                                <input
+                                                    type="file"
+                                                    class="kp-attachment-input"
+                                                    wire:model="attachmentFile"
+                                                >
+
+                                                <button type="submit" class="kp-attachment-add">Upload</button>
+
+                                                <button type="button" class="kp-attachment-cancel" wire:click="cancelAddingAttachment">Cancel</button>
+                                            </form>
+
+                                            <div wire:loading wire:target="attachmentFile" style="margin-top:6px;font-size:11px;font-weight:800;color:#64748b;">
+                                                Preparing file...
+                                            </div>
+
+                                            @error('attachmentFile')
+                                                <p class="kp-error">{{ $message }}</p>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+</article>
                             @empty
                                 <div class="kp-empty"><strong>No tasks here yet</strong>Drop cards here or create a new task in To Do.</div>
                             @endforelse
