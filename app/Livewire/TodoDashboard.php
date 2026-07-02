@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Todo;
+use App\Models\Subtask;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -63,6 +64,10 @@ class TodoDashboard extends Component
     public string $editPriority = 'medium';
 
     public ?string $editDeadline = null;
+
+    public ?int $subtaskTodoId = null;
+
+    public string $subtaskTitle = '';
 
     protected function rules(): array
     {
@@ -152,6 +157,66 @@ class TodoDashboard extends Component
         $this->editDeadline = null;
 
         $this->resetValidation();
+    }
+
+    public function startAddingSubtask(int $todoId): void
+    {
+        $this->authorizeTaskAction('update tasks');
+
+        Todo::query()->findOrFail($todoId);
+
+        $this->subtaskTodoId = $todoId;
+        $this->subtaskTitle = '';
+
+        $this->resetValidation('subtaskTitle');
+    }
+
+    public function addSubtask(int $todoId): void
+    {
+        $this->authorizeTaskAction('update tasks');
+
+        $validated = $this->validate([
+            'subtaskTitle' => ['required', 'string', 'max:255'],
+        ]);
+
+        $todo = Todo::query()->findOrFail($todoId);
+
+        $todo->subtasks()->create([
+            'title' => trim($validated['subtaskTitle']),
+            'is_completed' => false,
+        ]);
+
+        $this->subtaskTodoId = $todoId;
+        $this->subtaskTitle = '';
+
+        $this->resetValidation('subtaskTitle');
+    }
+
+    public function cancelAddingSubtask(): void
+    {
+        $this->subtaskTodoId = null;
+        $this->subtaskTitle = '';
+
+        $this->resetValidation('subtaskTitle');
+    }
+
+    public function toggleSubtask(int $subtaskId): void
+    {
+        $this->authorizeTaskAction('update tasks');
+
+        $subtask = Subtask::query()->findOrFail($subtaskId);
+
+        $subtask->is_completed = ! $subtask->is_completed;
+        $subtask->save();
+    }
+
+    public function deleteSubtask(int $subtaskId): void
+    {
+        $this->authorizeTaskAction('update tasks');
+
+        Subtask::query()
+            ->whereKey($subtaskId)
+            ->delete();
     }
 
     public function updateTodoStatus(int $todoId, string $status): void
@@ -245,7 +310,7 @@ class TodoDashboard extends Component
     public function render(): View
     {
         $todos = $this->applyTodoSorting(
-            Todo::query()
+            Todo::query()->with('subtasks')
                 ->orderByRaw("
                     CASE status
                         WHEN 'todo' THEN 1

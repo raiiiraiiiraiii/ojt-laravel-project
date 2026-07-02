@@ -507,6 +507,120 @@
 
         @media (max-width: 1050px) { .kp-hero-grid { grid-template-columns: 1fr; } .kp-stats { grid-template-columns: repeat(2,minmax(0,1fr)); } }
         @media (max-width: 640px) { .kp-page { padding: 18px; } .kp-hero { border-radius: 26px; padding: 20px; } .kp-brand-row { align-items: flex-start; } .kp-logo { width: 58px; height: 58px; border-radius: 20px; } .kp-toolbar { align-items: flex-start; flex-direction: column; } }
+
+        .kp-subtasks {
+            margin-top: 10px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 10px;
+        }
+
+        .kp-subtask-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .kp-subtask-list {
+            display: grid;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .kp-subtask-row {
+            display: grid;
+            grid-template-columns: 18px minmax(0, 1fr) 24px;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #f1f5f9;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 7px 8px;
+            font-size: 12px;
+            font-weight: 750;
+            color: #334155;
+            overflow: hidden;
+        }
+
+        .kp-subtask-row span {
+            min-width: 0;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            line-height: 1.35;
+        }
+
+        .kp-subtask-row input {
+            accent-color: #FFD500;
+        }
+
+        .kp-subtask-done {
+            color: #94a3b8;
+            text-decoration: line-through;
+        }
+
+        .kp-subtask-delete {
+            width: 22px;
+            height: 22px;
+            display: grid;
+            place-items: center;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: #dc2626;
+            cursor: pointer;
+            font-weight: 900;
+        }
+
+        .kp-subtask-delete:hover {
+            background: #fee2e2;
+        }
+
+        .kp-subtask-form {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 6px;
+            align-items: start;
+        }
+
+        .kp-subtask-input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #FFE761;
+            border-radius: 12px;
+            padding: 8px 9px;
+            font-size: 12px;
+            font-weight: 750;
+            outline: none;
+        }
+
+        .kp-subtask-add,
+        .kp-subtask-cancel,
+        .kp-subtask-start {
+            border: 1px solid #FFE761;
+            border-radius: 999px;
+            background: #FFF9E2;
+            color: #8a6500;
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .kp-subtask-start {
+            width: 100%;
+            margin-top: 2px;
+            background: white;
+            color: #475569;
+            border-color: #e5e7eb;
+        }
+
     </style>
 
     <div class="kp-shell">
@@ -649,6 +763,73 @@
                                             @endif
                                         </div>
                                     @endif
+
+                                    @php
+                                        $totalSubtasks = $todo->subtasks->count();
+                                        $completedSubtasks = $todo->subtasks->where('is_completed', true)->count();
+                                    @endphp
+
+                                    <div class="kp-subtasks" @click.stop draggable="false">
+                                        <div class="kp-subtask-head">
+                                            <span>Checklist</span>
+                                            <span>{{ $completedSubtasks }} / {{ $totalSubtasks }}</span>
+                                        </div>
+
+                                        @if ($totalSubtasks > 0)
+                                            <div class="kp-subtask-list">
+                                                @foreach ($todo->subtasks as $subtask)
+                                                    <div class="kp-subtask-row" wire:key="subtask-{{ $subtask->id }}">
+                                                        <input
+                                                            type="checkbox"
+                                                            @checked($subtask->is_completed)
+                                                            wire:click="toggleSubtask({{ $subtask->id }})"
+                                                        >
+
+                                                        <span class="{{ $subtask->is_completed ? 'kp-subtask-done' : '' }}">
+                                                            {{ $subtask->title }}
+                                                        </span>
+
+                                                        <button
+                                                            type="button"
+                                                            class="kp-subtask-delete"
+                                                            title="Delete subtask"
+                                                            wire:click="deleteSubtask({{ $subtask->id }})"
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+                                        @if ($subtaskTodoId === $todo->id)
+                                            <form wire:submit.prevent="addSubtask({{ $todo->id }})" class="kp-subtask-form">
+                                                <input
+                                                    type="text"
+                                                    class="kp-subtask-input"
+                                                    wire:model="subtaskTitle"
+                                                    placeholder="Add checklist item"
+                                                >
+
+                                                <button type="submit" class="kp-subtask-add">Add</button>
+
+                                                <button type="button" class="kp-subtask-cancel" wire:click="cancelAddingSubtask">Cancel</button>
+                                            </form>
+
+                                            @error('subtaskTitle')
+                                                <p class="kp-error">{{ $message }}</p>
+                                            @enderror
+                                        @else
+                                            <button
+                                                type="button"
+                                                class="kp-subtask-start"
+                                                wire:click="startAddingSubtask({{ $todo->id }})"
+                                            >
+                                                + Add subtask
+                                            </button>
+                                        @endif
+                                    </div>
+
                                 </article>
                             @empty
                                 <div class="kp-empty"><strong>No tasks here yet</strong>Drop cards here or create a new task in To Do.</div>
