@@ -542,26 +542,7 @@
                 </div>
             </aside>
         </section>
-
-        <div class="kp-toolbar">
-            <h2 class="kp-section-title">Task board</h2>
-            <div class="kp-hint">Drag, edit, and ship.</div>
-        </div>
-
-        
-        <div class="kp-sort-strip" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0 16px;padding:12px 14px;border:1px solid rgba(217,159,0,.18);border-radius:20px;background:rgba(255,255,255,.72);box-shadow:0 10px 24px rgba(15,23,42,.05);">
-            <div style="display:flex;align-items:center;gap:10px;">
-                <div style="width:34px;height:34px;border-radius:12px;background:#111827;color:#FFD500;display:grid;place-items:center;">
-                    <svg class="kp-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M7 6h10M9 12h6M11 18h2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
-                    </svg>
-                </div>
-                <div>
-                    <div style="font-size:12px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;color:#64748b;">Board order</div>
-                    <div style="font-size:13px;font-weight:800;color:#111827;">Sort tasks inside each column</div>
-                </div>
-            </div>
-
+<div style="display:flex;justify-content:flex-end;align-items:center;margin:8px 0 14px;">
             <div style="display:flex;align-items:center;gap:10px;">
                 <label for="sortBy" style="font-size:12px;font-weight:900;color:#64748b;">Sort by</label>
                 <select
